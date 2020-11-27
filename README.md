@@ -39,11 +39,9 @@ Usage of ./k8sviz:
 ```
 
 ## Examples
-```
 - Generate png file for namespace `default`
 ```
 $ ./k8mapper -n topic-clustering -t png -o topic-clustering.png
 ```
 - Output for [an example topic clustering namespace
    - [topic-clustering.png](./topic-clustering.png):
-```
