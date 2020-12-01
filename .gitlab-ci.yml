@@ -15,7 +15,7 @@ variables:
   HOST_PRODUCTION: virtualizer.staging.ippen.space
 
   # general
-  NAMESPACE: virtualizer
+  NAMESPACE: topic-clustering
   ENV: cluster
   LOCAL_PATH: "/etc/data/"
 
@@ -130,9 +130,6 @@ stg::virtualize:
       --set global.env.BUCKET=$BUCKET_STAGING
       --set global.env.HOST=$HOST_STAGING
       --set global.env.ENV=$ENV
-      --set global.env.LOCAL_PATH=$LOCAL_PATH
-      --set global.env.ES_HOST=$ES_HOST
-      --set global.env.ES_INDEX=$ES_INDEX
-      --set global.env.ES_PORT=$ES_PORT
+      --set global.env.LOCAL_PATH=$LOCAL_PATH      
       --set global.env.AWS_ROLE=$AWS_ROLE_STAGING_S3
       . -f values/staging/values.yaml
