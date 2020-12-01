@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ippendigital/virtrualizer
+  repository: ippendigital/virtualizer
   pullPolicy: IfNotPresent
   tag: v1.0.0
 
