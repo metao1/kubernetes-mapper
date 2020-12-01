@@ -132,4 +132,4 @@ stg::virtualize:
       --set global.env.ENV=$ENV
       --set global.env.LOCAL_PATH=$LOCAL_PATH      
       --set global.env.AWS_ROLE=$AWS_ROLE_STAGING_S3
-      . -f values/staging/values.yaml
+      k8s/virtualizer -f values/staging/values.yaml
