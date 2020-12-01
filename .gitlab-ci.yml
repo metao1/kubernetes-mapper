@@ -1,0 +1,113 @@
+############################ API GATEWAY ############################################
+
+variables:
+
+  # aws
+  AWS_REGION: eu-central-1 # same for integration, staging and production
+  AWS_ROLE_STAGING: arn:aws:iam::613377955303:role/team/id_IntelligentContent
+  AWS_ROLE_PRODUCTION: arn:aws:iam::875751216089:role/team/id_IntelligentContent
+  ROLE_SESSION_NAME: topic.cluster
+  AWS_ROLE_STAGING_S3: arn:aws:iam::613377955303:role/k8s/pod/id_TopicClusteringS3FullAccess
+  AWS_ROLE_PRODUCTION_S3: arn:aws:iam::875751216089:role/k8s/pod/id_TopicClusteringS3FullAccess
+
+  # kubectx based
+  HOST_STAGING: virtualizer.staging.ippen.space
+  HOST_PRODUCTION: virtualizer.staging.ippen.space
+
+  # general
+  NAMESPACE: virtualizer
+  ENV: cluster
+  LOCAL_PATH: "/etc/data/"
+
+  # deployment names
+  NAME_DEFAULT: virtualizer
+
+  #Docker
+  DOCKERFILE_PATH: .
+
+before_script:
+  - echo "start script"
+  - env
+
+
+stages:
+  - release
+  - staging
+  - production
+
+.release_template: &release_definition
+  environment:
+    name: $ENV_NAME
+    url: $CI_PROJECT_URL/builds/$CI_JOB_ID/artifacts/download
+  variables:
+    DOCKERFILE_PATH: .
+    REPOSITORY: ippendigital/virtualizer:$CI_BUILD_REF_NAME
+  before_script:
+    - docker info
+    - docker login --username=$DOCKER_USER --password=$DOCKER_USER_PASSWORD
+  script:
+    - docker build -t $REPOSITORY .
+    - docker push $REPOSITORY
+
+release::docker::branch:
+  stage: release
+  <<: *release_definition
+  variables:
+    REPOSITORY: ippendigital/virtualizer:$CI_BUILD_REF_NAME
+    DOCKERFILE_PATH: $DOCKERFILE_PATH
+    ENV_NAME: develop/$CI_COMMIT_REF_NAME
+  tags:
+    - docker
+  only:
+    - branches
+  except:
+    - master
+
+release::docker::tag:
+  stage: release
+  <<: *release_definition
+  variables:
+    REPOSITORY: ippendigital/virtualizer:$CI_BUILD_REF_NAME
+    DOCKERFILE_PATH: $DOCKERFILE_PATH
+    ENV_NAME: tag/$CI_COMMIT_REF_NAME
+  tags:
+    - docker
+  only:
+    - tags
+
+release::docker::master:
+  stage: release
+  <<: *release_definition
+  variables:
+    REPOSITORY: ippendigital/virtualizer:latest
+    DOCKERFILE_PATH: $DOCKERFILE_PATH
+    ENV_NAME: master/$CI_COMMIT_REF_NAME
+  tags:
+    - docker
+  only:
+    - manual
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Stage: Helm Repo
+# ---------------------------------------------------------------------------------------------------------------------
+
+.onStagingKube:
+  stage: staging
+  image:
+    name: ippendigital/idwt:stable
+    entrypoint: [""]
+  before_script:
+    - aws sts get-caller-identity --output text --query Arn
+    - CREDENTIALS=$(aws sts assume-role --output json --role-arn $AWS_ROLE_STAGING --role-session-name $ROLE_SESSION_NAME)
+    - export AWS_ACCESS_KEY_ID=$(echo "$CREDENTIALS" | jq -r .Credentials.AccessKeyId)
+    - export AWS_SECRET_ACCESS_KEY=$(echo "$CREDENTIALS" | jq -r .Credentials.SecretAccessKey)
+    - export AWS_SESSION_TOKEN=$(echo "$CREDENTIALS" | jq -r .Credentials.SessionToken)
+    - aws eks update-kubeconfig --name staging --region $AWS_REGION
+    - aws sts get-caller-identity --output text --query Arn
+
+  tags:
+    - ict-gitlab-runner
+  # only:
+  #   - master
+  when: manual # allow manual deployment for testing (without integration)
