@@ -34,6 +34,7 @@ stages:
   - release
   - staging
   - production
+  - k8s
 
 .release_template: &release_definition
   environment:
@@ -111,3 +112,27 @@ release::docker::master:
   # only:
   #   - master
   when: manual # allow manual deployment for testing (without integration)
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Stage: Virtualizer
+# ---------------------------------------------------------------------------------------------------------------------
+stg::virtualize:
+  extends: .onStagingKube  
+  stage: k8s
+  when: manual
+  script:
+     - >
+      helm3 upgrade --install $NAME_DEFAULT
+      --namespace $NAMESPACE
+      --set global.image.tag=${CI_COMMIT_TAG}
+      --set global.variables.aws.region=$AWS_REGION
+      --set global.env.BUCKET=$BUCKET_STAGING
+      --set global.env.HOST=$HOST_STAGING
+      --set global.env.ENV=$ENV
+      --set global.env.LOCAL_PATH=$LOCAL_PATH
+      --set global.env.ES_HOST=$ES_HOST
+      --set global.env.ES_INDEX=$ES_INDEX
+      --set global.env.ES_PORT=$ES_PORT
+      --set global.env.AWS_ROLE=$AWS_ROLE_STAGING_S3
+      . -f values/staging/values.yaml

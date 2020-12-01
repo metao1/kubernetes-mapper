@@ -1,0 +1,30 @@
+rest-api:
+  enabled: false
+
+model-maker:
+  enabled: false
+
+initial-updater:
+  enabled: true
+  env:
+    LOW: false
+
+enricher:
+  enabled: false
+
+calculator:
+  enabled: true
+  env:
+    LOW: false
+
+poc-api:
+  enabled: false
+
+redis:
+  enabled: false
+
+global:
+  env:
+    CLIENT: Merkur.de
+    INPUT_TYPE: general
+    CONSUMER_GROUP: 'ict-topclu-merkur'
