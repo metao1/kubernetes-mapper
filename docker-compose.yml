@@ -1,0 +1,12 @@
+version: "3.4"
+
+services:
+  
+  virtualizer:
+    build: .
+    container_name: virtualizer
+    image: "main:latest"
+    ports:
+      - 8080:8080 
+    volumes:
+      - ./results:/results

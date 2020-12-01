@@ -1,0 +1,10 @@
+*/build
+*/logs
+*/kubernetes
+*.idea
+*.gitlab-ci.yml
+*.gitignore
+*.git
+*.sh
+*Dockerfile
+.
