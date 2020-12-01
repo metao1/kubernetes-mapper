@@ -37,21 +37,7 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 60
-            failureThreshold: 60
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 60
-            failureThreshold: 60
+              protocol: TCP          
           resources:
       {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
