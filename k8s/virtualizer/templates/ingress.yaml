@@ -11,14 +11,12 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "virtualizer.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
     kubernate.io/ingress.class: ngnix
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     kubernetes.io/ingress.class: "elb-internal"
-  {{- end }}
 spec:
   rules:
     - host: {{ .Values.global.env.HOST }}
